@@ -19,9 +19,7 @@ public class ImageLayout extends HorizontalLayout {
 
         VerticalLayout vLayout = new VerticalLayout();
         Image image = ImageGenerator.generateImage(thumbnailFile);
-        image.addClickListener(event -> {
-            showFile(thumbnailFile);
-        });
+        image.addClickListener(event -> showFile(thumbnailFile));
 
         vLayout.add(image);
         Label fileName = new Label(thumbnailFile.getName());
@@ -29,27 +27,28 @@ public class ImageLayout extends HorizontalLayout {
         vLayout.add(fileName);
         vLayout.getStyle().set("padding-right", "0px");
 
-        Icon delete = new Icon(VaadinIcon.CLOSE);
-        delete.getStyle().set("padding-left", "0px");
-        delete.addClickListener(event -> {
+        Icon deleteIcon = new Icon(VaadinIcon.CLOSE);
+        deleteIcon.getStyle().set("padding-left", "0px");
+        deleteIcon.addClickListener(event -> {
             File file = new File(new File(view.getImageFolder()), thumbnailFile.getName());
             file.delete();
             thumbnailFile.delete();
+            view.getService().deleteImageInfo(thumbnailFile.getName());
             view.refreshImagesLayout();
         });
-        add(vLayout, delete);
+        add(vLayout, deleteIcon);
     }
     private void showFile(File thumbnailFile) {
         Dialog dialog = new Dialog();
-        Icon close = new Icon(VaadinIcon.CLOSE);
-        close.addClickListener(event -> dialog.close());
+        Icon closeIcon = new Icon(VaadinIcon.CLOSE);
+        closeIcon.addClickListener(event -> dialog.close());
         File file = new File(new File(view.getImageFolder()), thumbnailFile.getName());
         Image image = ImageGenerator.generateImage(file);
         image.setMaxHeight("700px");
         image.setMaxWidth("1000px");
         VerticalLayout dialogLayout = new VerticalLayout();
-        dialogLayout.add(close, image);
-        dialogLayout.setHorizontalComponentAlignment(Alignment.END, close);
+        dialogLayout.add(closeIcon, image);
+        dialogLayout.setHorizontalComponentAlignment(Alignment.END, closeIcon);
         dialogLayout.getStyle().set("padding-top", "0px");
         dialog.add(dialogLayout);
         dialog.open();
