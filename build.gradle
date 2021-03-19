@@ -19,6 +19,7 @@ ext {
 
 dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
+    implementation 'net.coobird:thumbnailator:[0.4, 0.5)'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
