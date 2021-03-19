@@ -30,6 +30,8 @@ out/
 **/build/
 node_modules/
 target/frontend/
+uploaded-images/
+
 
 ### NetBeans ###
 /nbproject/private/
