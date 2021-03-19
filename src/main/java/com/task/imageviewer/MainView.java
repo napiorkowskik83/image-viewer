@@ -14,6 +14,7 @@ import elemental.json.Json;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 @Route("")
 public class MainView extends VerticalLayout {
@@ -21,8 +22,9 @@ public class MainView extends VerticalLayout {
     private static final String THUMBNAIL_FOLDER = "uploaded-thumbnails";
     private File uploadedFile;
     private String uploadedFileName;
+    private final VerticalLayout imagesLayout = new VerticalLayout();
 
-    public MainView() {
+    public MainView(){
 
         createUploadFolderIfNotExists();
         createThumbnailFolderIfNotExists();
@@ -34,8 +36,8 @@ public class MainView extends VerticalLayout {
         TextField textField = new TextField();
 
         Upload upload = new Upload((Receiver) (filename, mimeType) -> {
-            if(isImage(filename)){
-                uploadedFileName = textField.getValue() + filename.substring(filename.length()-4);
+            if (isImage(filename)) {
+                uploadedFileName = textField.getValue() + filename.substring(filename.length() - 4);
                 uploadedFile = new File(new File(IMAGE_FOLDER), uploadedFileName);
                 try {
                     return new FileOutputStream(uploadedFile);
@@ -43,7 +45,7 @@ public class MainView extends VerticalLayout {
                     e1.printStackTrace();
                     return null;
                 }
-            }else{
+            } else {
                 Notification.show("You've tried to upload file which is not an image!");
                 return null;
             }
@@ -58,20 +60,26 @@ public class MainView extends VerticalLayout {
             upload.setVisible(false);
             File thumbnail = new File(new File(THUMBNAIL_FOLDER), uploadedFileName);
             ThumbnailGenerator.createFromImageFile(uploadedFile, thumbnail);
+            refreshImagesLayout();
         });
 
         textField.setValueChangeMode(ValueChangeMode.EAGER);
         textField.addValueChangeListener(e -> {
-            if(textField.getValue().length() > 0){
+            if (textField.getValue().length() > 0) {
                 upload.setVisible(true);
-            } else{
+            } else {
                 upload.setVisible(false);
             }
         });
 
         HorizontalLayout uploadLayout = new HorizontalLayout(infoLabel, textField, upload);
         uploadLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        add(uploadLayout);
+        refreshImagesLayout();
+        add(uploadLayout, imagesLayout);
+
+        imagesLayout.getStyle().set("padding-top", "3em");
+        getStyle().set("padding-left", "4em");
+        getStyle().set("padding-top", "3em");
     }
 
     private File createUploadFolderIfNotExists() {
@@ -94,5 +102,20 @@ public class MainView extends VerticalLayout {
         return fileName.toLowerCase().endsWith(".png")
                 || fileName.toLowerCase().endsWith(".jpg")
                 || fileName.toLowerCase().endsWith(".gif");
+    }
+    protected void refreshImagesLayout() {
+        imagesLayout.removeAll();
+        File[] thumbnailFiles = new File(THUMBNAIL_FOLDER).listFiles();
+        for(File file: thumbnailFiles){
+            try {
+                imagesLayout.add(new ImageLayout(this, file));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected String getImageFolder() {
+        return IMAGE_FOLDER;
     }
 }
